@@ -221,3 +221,5 @@ DEPENDENCIES
   spring-commands-rspec
   tilt
   turbolinks
+BUNDLED WITH
+   1.10.3

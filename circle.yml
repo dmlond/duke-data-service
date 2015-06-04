@@ -3,4 +3,4 @@ machine:
   # Version of ruby to use
   ruby:
     version:
-      2.2.2
+      jruby-9.0.0.0

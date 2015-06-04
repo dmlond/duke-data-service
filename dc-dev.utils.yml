@@ -16,7 +16,7 @@ rails:
     - server
   entrypoint: rails
   links:
-    - db:postgres.db.host  
+    - db:postgres.db.host
 rake:
   image: dukedataservice_server
   volumes_from:
@@ -34,3 +34,9 @@ rspec:
     - db:postgres.db.host
   entrypoint: rspec
   command: spec
+genkeystore:
+  image: dukedataservice_server
+  volumes:
+    - ./config/keystore:/keystore
+  entrypoint: keytool
+  command: -genkey -alias localhost -keyalg RSA -keystore /keystore/keystore.jks -storepass password

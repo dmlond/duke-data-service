@@ -6,8 +6,8 @@ WORKDIR /root/installs
 RUN apt-get update && apt-get install -y openssl --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # ssl certs
-ADD install_ssl_cert.sh /root/installs/install_ssl_cert.sh
-ADD cert_config /root/installs/cert_config
+ADD docker/includes/install_ssl_cert.sh /root/installs/install_ssl_cert.sh
+ADD docker/includes/cert_config /root/installs/cert_config
 RUN ["chmod", "u+x", "/root/installs/install_ssl_cert.sh"]
 RUN ["/root/installs/install_ssl_cert.sh"]
 

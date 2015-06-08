@@ -11,6 +11,14 @@ ADD docker/includes/cert_config /root/installs/cert_config
 RUN ["chmod", "u+x", "/root/installs/install_ssl_cert.sh"]
 RUN ["/root/installs/install_ssl_cert.sh"]
 
+# Heroku integration
+RUN wget -qO- https://toolbelt.heroku.com/install.sh | sed 's/sudo //g' | sh
+RUN ln -s /usr/local/heroku/bin/heroku /usr/local/bin/heroku
+# user or deployments
+RUN ["/usr/sbin/userdel", "ftp"]
+RUN ["/usr/sbin/groupadd", "-g", "50", "staff"]
+RUN ["/usr/sbin/useradd", "-N", "-u", "1000", "-g", "50", "deployer"]
+
 #Postgresql client
 RUN apt-get update && apt-get install -y postgresql --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
@@ -24,4 +32,4 @@ RUN ["bundle", "install"]
 
 # run the app by defualt
 EXPOSE 3000
-CMD ["puma", "-b", "ssl://0.0.0.0:3000?key=/etc/pki/tls/private/localhost.key&cert=/etc/pki/tls/certs/localhost.crt&keystore=/var/www/app/config/keystore/keystore.jks&keystore-pass=password"]
+CMD ["puma"]

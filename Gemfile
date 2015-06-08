@@ -17,6 +17,10 @@ gem 'react-rails'
 gem 'tilt'
 gem 'jquery-rails'
 gem 'turbolinks'
+gem 'uglifier'
+
+# use figaro to set heroku environment variables for secrets
+gem 'figaro'
 
 # circle-ci metadata formatter
 gem 'rspec_junit_formatter', '0.2.2'
@@ -33,3 +37,7 @@ group :development, :test do
   gem 'shoulda-matchers', require: false
   gem 'spring-commands-rspec', group: :development
 end
+
+#heroku requires this
+gem 'rails_12factor', group: :production
+ruby "2.2.2"

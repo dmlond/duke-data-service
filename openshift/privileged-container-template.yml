@@ -1,0 +1,69 @@
+ kind: Template
+ apiVersion: v1
+ metadata:
+   name: privileged-container-template
+ labels:
+    createdBy: privileged-container-template
+ parameters:
+ - description: Name applied to all Openshift Objects Created
+   displayName: Object Names
+   name: NAME
+   required: true
+ - description: Docker Image that needs root privilegs (must be available from a configured Registry, or the Docker Hub)
+   displayName: Docker Image Name
+   name: DOCKER_IMAGE
+   required: true
+ - description: Service Account with Root Privileges (must exist in the Openshift system or project)
+   displayName: Privileged Service Account
+   name: PRIVILEGED_SERVICE_ACCOUNT
+   required: true
+ objects:
+ - apiVersion: v1
+   kind: DeploymentConfig
+   metadata:
+     name: ${NAME}
+   spec:
+     replicas: 1
+     selector:
+       app: ${NAME}
+       deploymentconfig: ${NAME}
+     strategy:
+       resources: {}
+     template:
+       metadata:
+         labels:
+           app: ${NAME}
+           deploymentconfig: ${NAME}
+       spec:
+         containers:
+         - image: ${DOCKER_IMAGE}
+           name: ${NAME}
+           resources: {}
+         serviceAccountName: ${PRIVILEGED_SERVICE_ACCOUNT}
+     test: false
+     triggers:
+     - type: ConfigChange
+     - imageChangeParams:
+         automatic: true
+         containerNames:
+         - ${NAME}
+         from:
+           kind: ImageStreamTag
+           name: ${NAME}:latest
+       type: ImageChange
+ - apiVersion: v1
+   kind: ImageStream
+   metadata:
+    name: ${NAME}
+   spec:
+    tags:
+    - annotations:
+        openshift.io/imported-from: ${DOCKER_IMAGE}
+      from:
+        kind: DockerImage
+        name: ${DOCKER_IMAGE}
+      generation: null
+      importPolicy: {}
+      name: latest
+      referencePolicy:
+        type: ""

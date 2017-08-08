@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: docker-swift-onlyone
+spec:
+  ports:
+  - name: 8080-tcp
+    port: 8080
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app: docker-swift-onlyone
+    deploymentconfig: docker-swift-onlyone
+status:
+  loadBalancer: {}

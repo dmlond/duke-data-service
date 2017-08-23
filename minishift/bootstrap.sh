@@ -7,13 +7,13 @@ then
   echo "https://docs.openshift.org/latest/minishift/getting-started/installing.html#installing-instructions"
   exit
 fi
-eval $(minishift oc-env)
 
 minishift status | grep Running
 if [ $? -gt 0 ]
 then
-  minishift start
+  minishift start --cpus 4 --memory 4096
 fi
+eval $(minishift oc-env)
 
 oc get projects | grep dds
 if [ $? -gt 0 ]

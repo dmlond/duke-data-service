@@ -1,0 +1,9 @@
+{
+  "processMarkdown": true,
+  "curlOptions": "-sS --tlsv1.2",
+  "scriptName": "dukeds-cli",
+  "generateBashCompletion": true,
+  "generateZshCompletion": true,
+  "hostEnvironmentVariable": "DUKEDS_API_HOST",
+  "apiKeyAuthEnvironmentVariable": "DUKEDS_API_KEY"
+}

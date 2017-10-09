@@ -47,10 +47,11 @@ post_command()
     $verbose && set -o verbose
     curl_progress="s"
     $verbose && curl_progress="#"
-    response=$(curl --insecure -${curl_progress} -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header "Authorization: ${auth_token}" -d "${payload}" "${url}")
+    response=$(curl --retry 6 --insecure -${curl_progress} -X POST --header 'Content-Type: application/json' --header 'Accept: application/json' --header "Authorization: ${auth_token}" -d "${payload}" "${url}")
     if [ $? -gt 0 ]
     then
-      echo "Problem!"
+      echo "Curl problem!"
+      echo $response
       exit 1
     fi
     $verbose && set +o verbose
@@ -58,7 +59,8 @@ post_command()
     error=`echo ${response} | jq '.error'`
     if [ "${error}" != null ]
     then
-      echo "Problem!"
+      echo "DDS problem!"
+      echo $response
       exit 1
     fi
   fi

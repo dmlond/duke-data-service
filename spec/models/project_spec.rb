@@ -40,6 +40,10 @@ RSpec.describe Project, type: :model do
     it 'should have many containers' do
       should have_many(:containers)
     end
+
+    it 'should belong_to storage_provider' do
+      should belong_to(:storage_provider)
+    end
   end
 
   describe 'validations' do
@@ -98,7 +102,7 @@ RSpec.describe Project, type: :model do
   describe '#initialize_storage' do
     subject { FactoryBot.build(:project) }
     let!(:auth_role) { FactoryBot.create(:auth_role, :project_admin) }
-    let(:default_storage_provider) { FactoryBot.create(:storage_provider) }
+    let(:default_storage_provider) { FactoryBot.create(:storage_provider, :default) }
     it { is_expected.to callback(:initialize_storage).after(:create) }
 
     before do
@@ -110,7 +114,7 @@ RSpec.describe Project, type: :model do
     it 'should enqueue a ProjectStorageProviderInitializationJob with the default StorageProvider' do
       #TODO change this when storage_providers become configurable
       expect(StorageProvider.count).to eq 1
-      expect(StorageProvider.first.id).to eq(default_storage_provider.id)
+      expect(StorageProvider.default.id).to eq(default_storage_provider.id)
       expect(subject).to receive(:initialize_storage).and_call_original
       expect {
         subject.save
@@ -328,6 +332,37 @@ RSpec.describe Project, type: :model do
     end
   end
 
+  describe '#save with duplicate project name' do
+    let(:previous) { FactoryBot.create(:project) }
+
+    before do
+      expect(previous).to be_persisted
+    end
+
+    context 'empty slug' do
+      subject { FactoryBot.build(:project, name: previous.name) }
+      it {
+        expect(subject.save).to be_truthy
+      }
+    end
+
+    context 'slug not taken' do
+      subject { FactoryBot.build(:project, :with_slug, name: previous.name) }
+      it {
+        expect(Project.where(name: subject.name, slug: subject.slug)).not_to exist
+        expect(subject.save).to be_truthy
+      }
+    end
+
+    context 'slug taken' do
+      subject { FactoryBot.build(:project, name: previous.name, slug: previous.slug) }
+      it {
+        expect(Project.where(name: subject.name, slug: subject.slug)).to exist
+        expect(subject.save).not_to be_truthy
+      }
+    end
+  end
+
   describe 'UnRestorable' do
     let(:valid_child_file) { FactoryBot.create(:data_file, :root, project: subject) }
     let(:invalid_child_file) { FactoryBot.create(:data_file, :root, :invalid, project: subject) }
@@ -535,6 +570,7 @@ RSpec.describe Project, type: :model do
       end
 
       context 'when child is not a Container' do
+        include_context 'mock all Uploads StorageProvider'
         let(:incompatible_child) { FactoryBot.create(:file_version) }
         it {
           expect {

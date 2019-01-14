@@ -2,12 +2,12 @@ class Project < ActiveRecord::Base
   default_scope { order('created_at DESC') }
   include Kinded
   include ChildMinder
-  include RequestAudited
   include JobTransactionable
   include UnRestorable
   audited
 
   belongs_to :creator, class_name: "User"
+  belongs_to :storage_provider
   has_many :folders
   has_many :project_permissions
   has_many :uploads
@@ -45,7 +45,7 @@ class Project < ActiveRecord::Base
   end
 
   def initialize_storage
-    storage_provider = StorageProvider.first
+    storage_provider = StorageProvider.default
     ProjectStorageProviderInitializationJob.perform_later(
       job_transaction: ProjectStorageProviderInitializationJob.initialize_job(self),
       storage_provider: storage_provider,
@@ -110,6 +110,7 @@ class Project < ActiveRecord::Base
       existing_slugs = self.class.where("slug LIKE '#{slug_prefix}_%'").pluck(:slug)
       mock_slugs = (1..existing_slugs.length + 1).to_a.collect {|i| "#{slug_prefix}_#{i}"}
       self.slug = (mock_slugs - existing_slugs).first
+      valid?
     end
     self.slug
   end

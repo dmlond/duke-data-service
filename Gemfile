@@ -99,9 +99,3 @@ end
 group :docker, :development, :ua_test, :production do
   gem 'rails_12factor'
 end
-<<<<<<< HEAD
-||||||| merged common ancestors
-ruby "2.3.3"
-=======
-ruby "2.3.6"
->>>>>>> develop
